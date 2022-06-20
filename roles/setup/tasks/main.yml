@@ -1,0 +1,45 @@
+---
+- name: "update apt packages."
+  become: yes
+  yum:
+    update_cache: yes
+
+- name: "upgrade packages"
+  become: yes
+  yum:
+    update_only: yes
+
+- name: "install nodejs"
+  become: yes
+  yum:
+      name: nodejs
+      state: latest
+      update_cache: yes
+
+- name: "install npm"
+  become: yes
+  shell: npm i
+  args:
+    chdir: /home/ec2-user
+
+- name: "install pm2"
+  npm:
+    name: pm2
+    global: yes
+
+- name: "create directory"
+  file:
+    path: ~/web
+    state: directory
+
+- name: "copy customer server to created directory"
+  copy:
+    src: files/index.js
+    dest: ~/web/index.js
+    backup: yes
+
+- name: "start index.js"
+  shell: pm2 start ~/web/index.js -f
+  args:
+    chdir: ~/web/ec2-user
+  
